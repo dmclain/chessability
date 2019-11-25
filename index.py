@@ -2,24 +2,35 @@ import chess.pgn
 import itertools
 import json
 import requests
+import sys
+from datetime import date
 from io import StringIO
 from book import Book
 
-# print("building black")
-# black_book = Book('black')
-# black_book.load("najdorf.json")
+today = date.today()
+month = today.month
 
-print("building white")
-white_book = Book('white')
-white_book.load("d4.json")
+try:
+    if sys.argv[1].startswith('b'):
+        analyze = 'black'
+    else:
+        analyze = 'white'
+except IndexError:
+    analyze = 'white'
 
-print("loading games")
-if False:
-    resp = requests.get(u"https://api.chess.com/pub/player/davemclain/games/2019/09")
-    games = resp.json()[u"games"]
+if analyze == 'white':
+    print("building white")
+    book = Book('white')
+    book.load("d4.json")
 else:
-    with open("09.json") as games_file:
-        games = json.load(games_file)[u"games"]
+    print("building black")
+    book = Book('black')
+    book.load("sicilian.json")
+
+fname = f"{month}.json"
+print(f"loading games from {fname}")
+with open(fname) as games_file:
+    games = json.load(games_file)[u"games"]
 
 white_games = []
 black_games = []
@@ -33,12 +44,25 @@ for game in games:
         black_games.append((game, g))
         # print(repr(black_book.check_game(g)) + "   - " + game["url"])
 
-for i, (game, g) in enumerate(white_games):
-    move, node = white_book.check_game(g)
-    print(str(i).rjust(2) + " " + move.rjust(4) + " - " + repr(node) + " - " + game["url"])
+def analyze_games(book, games):
+    for i, (game, g) in enumerate(games):
+        move, node = book.check_game(g)
+        training = ""
+        print(str(i).rjust(2) + " " + game["url"])
+        if node and node.lines:
+            training = "https://www.chessable.com/variation/" + min(node.lines) + "/"
+        if node:
+            valid = ",".join(node.moves.keys()).rjust(4)
+            move_num = int((node.depth + 1) / 2   )
+            if node.player_move:
+                print(f"    You deviated from book on move {move_num} by playing {move.rjust(4)} instead of {valid}")
+            else:
+                print(f"    On move {move_num} they played {move.rjust(4)} which isn't in the book {valid}")
+            print("      " + training)
+        else:
+            print("No book moves found.")
 
-    # if me == u"white":
-    #     moves = list(itertools.islice(g.mainline(), 8))
-    #     if True or moves[0].san() == 'e4':
-    #         print(" ".join(m.san().rjust(5) for m in moves))
-    #         print(game[me]["result"] + "  " + game["url"])
+if analyze == 'white':
+    analyze_games(book, white_games)
+else:
+    analyze_games(book, black_games)
