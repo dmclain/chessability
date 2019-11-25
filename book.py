@@ -32,6 +32,7 @@ class Book(object):
                 node = node.moves[move.san()]
             else:
                 return (move.san(), node)
+        return (move.san(), node)
 
 class BookNode(object):
     parent = None
@@ -57,7 +58,7 @@ class BookNode(object):
     def __repr__(self):
         valid = ",".join(self.moves.keys()).rjust(4)
         if self.player_move:
-            move = ' ++ ' + valid
+            move = '++ ' + valid
         else:
-            move = ' x      '
-        return f"{self.depth} -{move}"
+            move = 'x      '
+        return f"{str(self.depth).rjust(2)} - {move}"
