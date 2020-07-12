@@ -8,7 +8,7 @@ from io import StringIO
 from book import Book
 
 today = date.today()
-month = today.month.zfill(2)
+month = str(today.month).zfill(2)
 
 try:
     if sys.argv[1].startswith('b'):
@@ -21,11 +21,11 @@ except IndexError:
 if analyze == 'white':
     print("building white")
     book = Book('white')
-    book.load("d4.json")
+    book.load("books/d4.json")
 else:
     print("building black")
     book = Book('black')
-    book.load("sicilian.json")
+    book.load("books/sicilian.json")
 
 fname = f"games/{month}.json"
 print(f"loading games from {fname}")

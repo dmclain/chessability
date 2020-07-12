@@ -4,7 +4,7 @@ import requests
 today = date.today()
 
 year = today.year
-month = today.month.zfill(2)
+month = str(today.month).zfill(2)
 
 resp = requests.get(f"https://api.chess.com/pub/player/davemclain/games/{year}/{month}")
 
