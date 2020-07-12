@@ -8,7 +8,7 @@ from io import StringIO
 from book import Book
 
 today = date.today()
-month = today.month
+month = today.month.zfill(2)
 
 try:
     if sys.argv[1].startswith('b'):
@@ -27,7 +27,7 @@ else:
     book = Book('black')
     book.load("sicilian.json")
 
-fname = f"{month}.json"
+fname = f"games/{month}.json"
 print(f"loading games from {fname}")
 with open(fname) as games_file:
     games = json.load(games_file)[u"games"]
@@ -48,19 +48,20 @@ def analyze_games(book, games):
     for i, (game, g) in enumerate(games):
         move, node = book.check_game(g)
         training = ""
-        print(str(i).rjust(2) + " " + game["url"])
+        print(str(i).rjust(2) + " " + game["url"] + " - " + game[analyze]['result'])
         if node and node.lines:
             training = "https://www.chessable.com/variation/" + min(node.lines) + "/"
         if node:
             valid = ",".join(node.moves.keys()).rjust(4)
-            move_num = int((node.depth + 1) / 2   )
+            move_num = int((node.depth + 1) / 2) + 1  # someday I hope to understand why +3
             if node.player_move:
                 print(f"    You deviated from book on move {move_num} by playing {move.rjust(4)} instead of {valid}")
             else:
                 print(f"    On move {move_num} they played {move.rjust(4)} which isn't in the book {valid}")
             print("      " + training)
         else:
-            print("No book moves found.")
+            print(f"     No book moves found: {g[0].san()}")
+        print("")
 
 if analyze == 'white':
     analyze_games(book, white_games)
