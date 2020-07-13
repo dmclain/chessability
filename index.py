@@ -21,11 +21,11 @@ except IndexError:
 if analyze == 'white':
     print("building white")
     book = Book('white')
-    book.load("books/d4.json")
+    book.load("books/jobava.json")
 else:
     print("building black")
     book = Book('black')
-    book.load("books/sicilian.json")
+    book.load("books/scandinavian.json")
 
 fname = f"games/{month}.json"
 print(f"loading games from {fname}")
