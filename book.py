@@ -27,7 +27,7 @@ class Book(object):
         departures = []
         for move in cgame.mainline():
             for node in nodes:
-                if move.san() not in node.moves:
+                if node.moves and move.san() not in node.moves:
                     departures.append((move.san(), node))
             nodes = self.transpositions[move.board().fen()]
             # print(f"{move.san()} - {nodes}")
