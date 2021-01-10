@@ -1,5 +1,5 @@
 games = [];
-$.each($('#sortList').children(), function(i, x) {
+$.each($('#variations').children(), function(i, x) {
   x = $(x);
   games.push({
     "id": x.attr('id'),
@@ -7,3 +7,20 @@ $.each($('#sortList').children(), function(i, x) {
   });
 });
 console.log(JSON.stringify(games));
+
+
+
+
+
+
+games = [];
+$.each($('#variations').children(), function(i, x) {
+  x = $(x);
+  games.push({
+    "id": x.attr('id'),
+    "pgn": x.find(".variation-card__moves").text()
+  });
+});
+console.log(JSON.stringify(games));
+
+

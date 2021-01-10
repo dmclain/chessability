@@ -21,11 +21,11 @@ except IndexError:
 if analyze == 'white':
     print("building white")
     book = Book('white')
-    book.load("books/jobava.json")
+    book.load("books/e4nystyle.json")
 else:
     print("building black")
     book = Book('black')
-    book.load("books/scandinavian.json")
+    book.load("books/e6b6.json")
 
 fname = f"games/{month}.json"
 print(f"loading games from {fname}")
@@ -46,20 +46,21 @@ for game in games:
 
 def analyze_games(book, games):
     for i, (game, g) in enumerate(games):
-        move, node = book.check_game(g)
+        deviations = book.check_game(g)
         training = ""
         print(str(i).rjust(2) + " " + game["url"] + " - " + game[analyze]['result'])
-        if node and node.lines:
-            training = "https://www.chessable.com/variation/" + min(node.lines) + "/"
-        if node:
-            valid = ",".join(node.moves.keys()).rjust(4)
-            move_num = int((node.depth + 1) / 2) + 1  # someday I hope to understand why +3
-            if node.player_move:
-                print(f"    You deviated from book on move {move_num} by playing {move.rjust(4)} instead of {valid}")
-            else:
-                print(f"    On move {move_num} they played {move.rjust(4)} which isn't in the book {valid}")
-            print("      " + training)
-        else:
+        for (move, node) in deviations:
+            if node and node.lines:
+                training = "https://www.chessable.com/variation/" + min(node.lines) + "/"
+            if node:
+                valid = ",".join(node.moves.keys()).rjust(4)
+                move_num = int((node.depth + 1) / 2) + 1  # someday I hope to understand why +3
+                if node.player_move:
+                    print(f"    You deviated from book on move {move_num} by playing {move.rjust(4)} instead of {valid}")
+                else:
+                    print(f"    On move {move_num} they played {move.rjust(4)} which isn't in the book {valid}")
+                print("      " + training)
+        if not deviations:
             print(f"     No book moves found: {g[0].san()}")
         print("")
 
