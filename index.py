@@ -1,4 +1,6 @@
 import chess.pgn
+from colorama import init, Fore, Back, Style
+
 import itertools
 import json
 import requests
@@ -9,6 +11,7 @@ from book import Book
 
 today = date.today()
 month = str(today.month).zfill(2)
+init()
 
 try:
     if sys.argv[1].startswith('b'):
@@ -49,16 +52,21 @@ def analyze_games(book, games):
         deviations = book.check_game(g)
         training = ""
         print(str(i).rjust(2) + " " + game["url"] + " - " + game[analyze]['result'])
+        print("        " +  g.headers['ECOUrl'].split('/')[-1].replace('-', ' '))
         for (move, node) in deviations:
+            move_num = int((node.depth + 1) / 2) + 1  # someday I hope to understand why +3
+            if node.depth % 2 == 1:
+                color = 'w'
+            else:
+                color = 'b'
             if node and node.lines:
-                training = "https://www.chessable.com/variation/" + min(node.lines) + "/"
+                training = f"https://www.chessable.com/variation/{min(node.lines)}/#/{move_num}/{color}"
             if node:
                 valid = ",".join(node.moves.keys()).rjust(4)
-                move_num = int((node.depth + 1) / 2) + 1  # someday I hope to understand why +3
                 if node.player_move:
-                    print(f"    You deviated from book on move {move_num} by playing {move.rjust(4)} instead of {valid}")
+                    print(Fore.RED + f"    You deviated from book on move {move_num} by playing " + Fore.WHITE + move.rjust(4) + Fore.RED + " instead of " + Fore.WHITE + valid + Style.RESET_ALL)
                 else:
-                    print(f"    On move {move_num} they played {move.rjust(4)} which isn't in the book {valid}")
+                    print(Fore.YELLOW + f"    On move {move_num} they played {move.rjust(4)} which isn't in the book {valid}" + Style.RESET_ALL)
                 print("      " + training)
         if not deviations:
             print(f"     No book moves found: {g[0].san()}")

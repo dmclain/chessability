@@ -3,6 +3,9 @@ from collections import defaultdict
 from io import StringIO
 import json
 
+def normalize(fen):
+    return fen.split(" ")[0]
+
 class Book(object):
     def __init__(self, color):
         self.color = color
@@ -23,13 +26,13 @@ class Book(object):
         self.nodes[first_move.san()].add_line(cgame.next(), id, self.transpositions)
 
     def check_game(self, cgame):
-        nodes = self.transpositions[cgame.next().board().fen()]
+        nodes = self.transpositions[normalize(cgame.next().board().fen())]
         departures = []
         for move in cgame.mainline():
             for node in nodes:
                 if node.moves and move.san() not in node.moves:
                     departures.append((move.san(), node))
-            nodes = self.transpositions[move.board().fen()]
+            nodes = self.transpositions[normalize(move.board().fen())]
             # print(f"{move.san()} - {nodes}")
 
         return departures
@@ -52,7 +55,7 @@ class BookNode(object):
             if next_move.san() not in self.moves:
                 new_node = BookNode(not self.player_move, self.depth + 1, next_move.san())
                 self.moves[next_move.san()] = new_node
-                transpositions[next_move.board().fen()].append(new_node)
+                transpositions[normalize(next_move.board().fen())].append(new_node)
             self.moves[next_move.san()].add_line(next_move, id, transpositions)
 
     def __repr__(self):
